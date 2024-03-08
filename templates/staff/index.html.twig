@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}| Staff Zone{% endblock %}
+
+{% block body %}
+
+    <main class="container">
+        <section class="p-4 text-center">
+
+            <h2>Welcome {{ user.userIdentifier }}</h2>
+
+
+            <h3><a href="{{ path('app_logout') }}" class="text-danger">Logout !</a></h3>
+
+            {% if "ROLE_ADMIN" in user.roles %}
+
+                <h4><a href="#" class="text-secondary"> Admin Panel</a></h4>
+
+            {% endif %}
+
+        </section>
+    </main>
+
+{% endblock %}

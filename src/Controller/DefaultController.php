@@ -12,6 +12,7 @@ class DefaultController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(CategoryRepository $categoryRepository): Response
     {
+
         return $this->render('default/index.html.twig', [
 
             'categories' => $categoryRepository->findAll()

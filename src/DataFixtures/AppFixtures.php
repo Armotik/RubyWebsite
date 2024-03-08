@@ -3,11 +3,19 @@
 namespace App\DataFixtures;
 
 use App\Entity\Category;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+
+    public function __construct(private UserPasswordHasherInterface $passwordHasher)
+    {
+    }
+
+
     public function load(ObjectManager $manager): void
     {
         $category = new Category();
@@ -30,17 +38,17 @@ class AppFixtures extends Fixture
         $category4->setDescription('How to play in the Ruby');
         $category4->setColor('#FFD700');
 
-        $category5 = new Category();
-        $category5->setName('Staff Zone');
-        $category5->setDescription('Staff login');
-        $category5->setColor('#FFD700');
+        $user = new User();
+        $user->setUsername("Armotik");
+        $user->setPassword($this->passwordHasher->hashPassword($user, "admin"));
+        $user->setRoles(['ROLE_ADMIN']);
 
         $manager->persist($category);
         $manager->persist($category2);
         $manager->persist($category3);
         $manager->persist($category4);
-        $manager->persist($category5);
 
+        $manager->persist($user);
 
         $manager->flush();
     }

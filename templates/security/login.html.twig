@@ -7,28 +7,22 @@
         <form class="w-50 m-auto mt-5 mb-5" method="post">
 
             {% if error %}
-                <div class="alert alert-danger">Email ou mot de passe incorrect, veuillez réessayer</div>
-            {% endif %}
-
-            {% if app.user %}
-                <div class="mb-4">
-                    Connecté en tant que {{ app.user.name }}, <a href="{{ path('app_logout') }}">Déconnexion</a>
-                </div>
+                <div class="alert alert-danger">Incorrect password or username, please retry.</div>
             {% endif %}
 
             <div class="form-outline mb-4">
-                <label class="form-label" for="pseudo">Pseudonyme</label>
-                <input type="text" id="pseudo" class="form-control" placeholder="Pseudo" value="{{ last_username }}" name="pseudo" required autofocus/>
+                <label class="form-label" for="pseudo">Username</label>
+                <input type="text" id="pseudo" class="form-control" placeholder="Username" value="{{ last_username }}" name="username" required autofocus/>
             </div>
 
             <div class="form-outline mb-4 f ">
-                <label class="form-label" for="password">Mot de passe</label>
-                <input type="password" id="password" class="form-control" placeholder="Mot de passe" name="password" required/>
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Password" name="password" required/>
             </div>
 
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-            <button type="submit" class="btn btn-primary btn-block mb-4 w-100">Connexion</button>
+            <button type="submit" class="btn btn-primary btn-block mb-4 w-100">Login</button>
         </form>
     </main>
 {% endblock %}
