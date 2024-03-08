@@ -1,0 +1,12 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %} NG OP | Staff Panel {% endblock %}
+
+{% block page_content %}
+
+    <ul>
+        <li style="margin: 15px"><a href="{{ path('app_staff', {'username':username}) }}">Back to account</a></li>
+        <li style="margin: 15px"><a href="{{ path('app_logout') }}">Logout</a></li>
+    </ul>
+
+{% endblock %}

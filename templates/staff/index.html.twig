@@ -2,6 +2,11 @@
 
 {% block title %}| Staff Zone{% endblock %}
 
+{% set uniqueErrors = {} %}
+{% for error in app.flashes('error') %}
+    {% set uniqueErrors = uniqueErrors|merge({(error): true}) %}
+{% endfor %}
+
 {% block body %}
 
     <main class="container">
@@ -12,13 +17,53 @@
 
             <h3><a href="{{ path('app_logout') }}" class="text-danger">Logout !</a></h3>
 
-            {% if "ROLE_ADMIN" in user.roles %}
+            {% if "ROLE_ADMIN" or "ROLE_WEBMASTER" in user.roles %}
 
-                <h4><a href="#" class="text-secondary"> Admin Panel</a></h4>
+                <h4><a href="{{ path('admin', {'username': app.user.userIdentifier}) }}" class="text-secondary"> Admin
+                        Panel</a></h4>
 
             {% endif %}
 
         </section>
+
+        <section class="p-4 text-center">
+            <div class="container">
+                <div class="row justify-content-center">
+
+                    {% if uniqueErrors is not empty %}
+                        {# Affiche chaque erreur unique #}
+                        {% for error, _ in uniqueErrors %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="col-md-6">
+                        <h4 class="mb-4">Change Password</h4>
+                        {{ form_start(form, {'attr': {'class': 'text-center'}}) }}
+                        <div class="mb-3">
+                            {{ form_row(form.password, {
+                                label: 'New Password',
+                                'label_attr': {'class': 'form-label'},
+                                'attr': {'class': 'form-control'}
+                            }) }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form_row(form.confirmPassword, {
+                                label: 'Confirm Password',
+                                'label_attr': {'class': 'form-label'},
+                                'attr': {'class': 'form-control'}
+                            }) }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
 {% endblock %}
