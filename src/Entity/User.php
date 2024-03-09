@@ -2,48 +2,53 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Tests\Fixtures\Metadata\Get;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
-#[ApiResource(
-    operations: [
-        new Get(normalizationContext: ['groups' => ['user:item']]),
-        new GetCollection(normalizationContext: ['groups' => ['user:list']])
-    ],
-    order: ['id' => 'ASC'],
-    paginationEnabled: false
-)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:item', 'user:list'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
-    #[Groups(['user:item', 'user:list'])]
+    #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: "The username cannot be blank")]
+    #[Assert\Length(
+        min: 3,
+        max: 20,
+        minMessage: "The username must be at least 3 characters long",
+        maxMessage: "The username cannot be longer than 20 characters"
+    )]
     private ?string $username = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    #[Groups(['user:item'])]
+    #[Assert\Choice([
+        "choices" => ["ROLE_USER", "ROLE_ADMIN", "ROLES_MOD_TEST", "ROLE_MOD", "ROLE_MOD_PLUS", "ROLE_SUPER_MOD"],
+        "message" => "The role must be either ROLE_USER, ROLE_ADMIN, ROLES_MOD_TEST, ROLE_MOD, ROLE_MOD_PLUS, or ROLE_SUPER_MOD"
+    ])]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
+    #[Assert\NotBlank(message: "The password cannot be blank")]
+    #[Assert\Length(
+        min: 6,
+        max: 255,
+        minMessage: "The password must be at least 6 characters long",
+        maxMessage: "The password cannot be longer than 255 characters"
+    )]
+    #[Assert\Regex(
+        pattern: "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/",
+        message: "The password must contain at least one uppercase letter, one lowercase letter, and one number"
+    )]
     private ?string $password = null;
 
     public function getId(): ?int

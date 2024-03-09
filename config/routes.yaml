@@ -1,9 +1,11 @@
+# config\routes.yaml
 controllers:
-  resource:
-    path: ../src/Controller/
-    namespace: App\Controller
-  type: attribute
+  resource: ../src/Controller/
+  type: annotation
 
-auth:
-  path: /auth
-  methods: [ 'POST' ]
+kernel:
+  resource: ../src/Kernel.php
+  type: annotation
+
+api_login_check:
+  path: /api/login_check
