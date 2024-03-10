@@ -42,6 +42,22 @@ security:
       pattern: ^/api
       stateless: true
       jwt: ~
+    main:
+      lazy: true
+      provider: app_user_provider
+      custom_authenticator: App\Security\StaffAuthenticator
+      logout:
+        path: app_logout
+        # where to redirect after logout
+        # target: app_any_route
+
+      remember_me:
+        secret: '%kernel.secret%'
+        lifetime: 604800
+        path: /
+        # by default, the feature is enabled by checking a checkbox in the
+        # login form, uncomment the following line to always enable it.
+        #always_remember_me: true
 
   # Easy way to control access for large sections of your site
   # Note: Only the *first* access control that matches will be used
@@ -51,13 +67,15 @@ security:
     - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
   role_hierarchy:
+    ROLE_GUIDE: ROLE_USER
     ROLE_MOD_TEST: ROLE_USER
     ROLE_MOD: ROLE_MOD_TEST
     ROLE_MOD_PLUS: ROLE_MOD
     ROLE_SUPER_MOD: ROLE_MOD_PLUS
     ROLE_ADMIN: ROLE_SUPER_MOD
-    ROLE_WEBMASTER: ROLE_ADMIN
-    ROLE_BOT: ROLE_USER
+    ROLE_ADMIN_MANAGER: ROLE_ADMIN
+    ROLE_BOT: ROLE_ADMIN
+    ROLE_WEBMASTER: ROLE_ADMIN_MANAGER
 
 when@test:
   security:

@@ -24,15 +24,13 @@ class ApiController extends AbstractController
     public function index(UserRepository $userRepository, SerializerInterface $serializer): Response
     {
         $staffList = $userRepository->findAll();
-        $jsonStaffList = $serializer->serialize($staffList, 'json');
+        $jsonStaffList = $serializer->serialize($staffList, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['password']]);
         return new JsonResponse($jsonStaffList, Response::HTTP_OK, [], true);
     }
 
 
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_show', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can show a staff')]
-    #[IsGranted('ROLE_WEBMASTER')]
-    #[IsGranted('ROLE_BOT')]
     public function show(User $staff, SerializerInterface $serializer): Response
     {
         // serialize the staff but not the password
@@ -43,8 +41,6 @@ class ApiController extends AbstractController
 
     #[Route('/api/staffs', name: 'app_api_staffs_create', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can create a staff')]
-    #[IsGranted('ROLE_WEBMASTER')]
-    #[IsGranted('ROLE_BOT')]
     public function create(Request $request, SerializerInterface $serializer, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): Response
     {
 
@@ -74,8 +70,6 @@ class ApiController extends AbstractController
 
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_update', methods: ['PUT'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can update a staff')]
-    #[IsGranted('ROLE_WEBMASTER')]
-    #[IsGranted('ROLE_BOT')]
     public function update(string $username, Request $request, SerializerInterface $serializer, User $currentStaff, EntityManagerInterface $em, UserRepository $userRepository): Response
     {
         $updatedStaff = $serializer->deserialize($request->getContent(),
@@ -111,8 +105,6 @@ class ApiController extends AbstractController
 
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_delete', methods: ['DELETE'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can delete a staff')]
-    #[IsGranted('ROLE_WEBMASTER')]
-    #[IsGranted('ROLE_BOT')]
     public function delete(User $staff, EntityManagerInterface $em): Response
     {
         $em->remove($staff);

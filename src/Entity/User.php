@@ -31,10 +31,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    #[Assert\Choice([
-        "choices" => ["ROLE_USER", "ROLE_ADMIN", "ROLES_MOD_TEST", "ROLE_MOD", "ROLE_MOD_PLUS", "ROLE_SUPER_MOD"],
-        "message" => "The role must be either ROLE_USER, ROLE_ADMIN, ROLES_MOD_TEST, ROLE_MOD, ROLE_MOD_PLUS, or ROLE_SUPER_MOD"
-    ])]
     private array $roles = [];
 
     #[ORM\Column]
