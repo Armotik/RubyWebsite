@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
 use App\Repository\UserRepository;
 use Exception;
 use Imagick;
@@ -11,23 +10,19 @@ use ImagickDrawException;
 use ImagickException;
 use ImagickPixel;
 use ImagickPixelException;
-use ImagickPixelIteratorException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DomCrawler\Image;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class ApiImagesController extends AbstractController
 {
 
     private array $rectangleCoordinates = [880, 445, 1825, 630];
-    private array $textCoordinates = [450, 650];
 
-    #[Route('/api/images/{username}', name: 'app_api_images_rankup_modtest', methods: ['POST'])]
+    #[Route('/api/images/{username}', name: 'app_api_images', methods: ['GET'])]
+    #[IsGranted('ROLE_SUPER_MOD', message: 'Access denied', statusCode: 403)]
     public function index(string $username, UserRepository $userRepository): JsonResponse
     {
 
@@ -38,8 +33,6 @@ class ApiImagesController extends AbstractController
         }
 
         $rank = $staff->getRoles();
-
-        // sort the array in descending order from the highest to the lowest rank (ROLE_WEBMASTER, ROLE_ADMIN, ROLE_SUPERMOD, ROLE_USER)
 
         usort($rank, function ($a, $b) {
             $hierarchy = [
@@ -92,7 +85,6 @@ class ApiImagesController extends AbstractController
             "141; 458",
             "245; 402",
             "245; 0",
-
         ];
 
         try {
@@ -120,7 +112,7 @@ class ApiImagesController extends AbstractController
     {
         $imageContent = file_get_contents($imageUrl);
         if ($imageContent === false) {
-            throw new \Exception("Failed to download image.");
+            throw new Exception("Failed to download image.");
         }
 
         $skin = new Imagick();
@@ -160,30 +152,22 @@ class ApiImagesController extends AbstractController
     private function replaceSkinOnTemplate($username, $skinImagePath, $templatePath, $outputPath): void
     {
         $template = new Imagick($templatePath);
-
-        // Charger le nouveau skin
         $skin = new Imagick($skinImagePath);
 
-        // Ajuster les dimensions du skin pour qu'il corresponde à la zone cible sur le template
-        // Ces valeurs doivent être ajustées en fonction des dimensions souhaitées
-        $skinWidth = 480; // Largeur du skin sur le template
-        $skinHeight = 960; // Hauteur du skin sur le template
+
+        $skinWidth = 480;
+        $skinHeight = 960;
         $skin->resizeImage($skinWidth, $skinHeight, Imagick::FILTER_LANCZOS, 1);
 
-        // Les coordonnées où placer le skin sur le template
-        // Ces valeurs doivent être ajustées pour positionner le skin correctement sur le template
-        $x = 210; // Coordonnée X pour le placement du skin sur le template
-        $y = 150;  // Coordonnée Y pour le placement du skin sur le template
+        $x = 210;
+        $y = 150;
 
-        // Superposer le skin sur le template
         $template->compositeImage($skin, Imagick::COMPOSITE_OVER, $x, $y);
 
-        // Sauvegarder l'image résultante
         $outputFilename = $username . '_rankup.png';
         $fullOutputPath = $outputPath . $outputFilename;
         $template->writeImage($fullOutputPath);
 
-        // Nettoyer
         $template->clear();
         $template->destroy();
         $skin->clear();
@@ -199,11 +183,9 @@ class ApiImagesController extends AbstractController
     {
         $imagick = new Imagick($imagePath);
 
-        // Définir les propriétés pour le rectangle couvrant l'ancien nom
         $draw = new ImagickDraw();
-        $draw->setFillColor(new ImagickPixel($color)); // La couleur doit correspondre à celle du fond du rectangle
+        $draw->setFillColor(new ImagickPixel($color));
 
-        // Dessiner le rectangle
         $draw->rectangle($this->rectangleCoordinates[0], $this->rectangleCoordinates[1], $this->rectangleCoordinates[2], $this->rectangleCoordinates[3]);
         $imagick->drawImage($draw);
 
@@ -216,53 +198,42 @@ class ApiImagesController extends AbstractController
      */
     private function drawTextWithinRectangle(Imagick $image, string $username, string $outputPath): void
     {
-        // Définir les coordonnées du rectangle
         [$x1, $y1, $x2, $y2] = $this->rectangleCoordinates;
         $rectangleWidth = $x2 - $x1;
         $rectangleHeight = $y2 - $y1;
 
-        // Créer un objet de dessin pour le texte
         $draw = new ImagickDraw();
-        $draw->setFillColor('white'); // La couleur du texte
-        $draw->setFont('font/OpenSans/static/OpenSans-ExtraBold.ttf'); // La police du texte
+        $draw->setFillColor('white');
+        $draw->setFont('font/OpenSans/static/OpenSans-ExtraBold.ttf');
 
 
-        // Définir la taille initiale de la police et l'ajuster
-        $fontSize = 10; // Commencez petit pour ajuster
+        $fontSize = 10;
         $draw->setFontSize($fontSize);
 
-        // Obtenir les propriétés de la police à la taille actuelle
         $metrics = $image->queryFontMetrics($draw, $username);
 
-        // Augmenter la taille de la police jusqu'à ce que le texte atteigne la largeur ou la hauteur maximale du rectangle
         while ($metrics['textWidth'] <= $rectangleWidth && $metrics['textHeight'] <= $rectangleHeight) {
             $fontSize++;
             $draw->setFontSize($fontSize);
             $metrics = $image->queryFontMetrics($draw, $username);
         }
 
-        // Réduire la taille de la police pour la dernière fois pour s'assurer qu'elle rentre dans le rectangle
         $fontSize--;
         $draw->setFontSize($fontSize);
 
-        // Calculer les coordonnées x et y pour centrer le texte dans le rectangle
         $textX = $x1 + ($rectangleWidth - $metrics['textWidth']) / 2;
         $textY = $y1 + ($rectangleHeight - $metrics['textHeight']) / 2 + $metrics['ascender'];
 
-        // Dessiner le texte sur l'image
         $draw->annotation($textX, $textY, $username);
         $image->drawImage($draw);
 
-        // Libérer les ressources
         $draw->clear();
         $draw->destroy();
 
-        // Sauvegarder l'image
         $outputFilename = $username . '_rankup.png';
         $fullOutputPath = $outputPath . $outputFilename;
         $image->writeImage($fullOutputPath);
 
-        // Libérer les ressources
         $image->clear();
         $image->destroy();
     }
@@ -273,7 +244,6 @@ class ApiImagesController extends AbstractController
      */
     private function cutSkinToShape(Imagick $skin, $pointsStringArray, $outputPath): void
     {
-        // Créer le masque basé sur la forme géométrique donnée par les points
         $mask = new Imagick();
         $mask->newImage($skin->getImageWidth(), $skin->getImageHeight(), 'transparent');
         $mask->setImageFormat('png');
@@ -281,20 +251,15 @@ class ApiImagesController extends AbstractController
         $draw = new ImagickDraw();
         $draw->setFillColor('black');
 
-        // Convertit la chaîne de points en tableau de points pour Imagick
         $polygonPoints = $this->convertPointsToPolygon($pointsStringArray);
 
-        // Dessine la forme sur le masque
         $draw->polygon($polygonPoints);
         $mask->drawImage($draw);
 
-        // Applique le masque sur le skin pour couper la forme
         $skin->compositeImage($mask, Imagick::COMPOSITE_DSTIN, 0, 0);
 
-        // Sauvegarde le skin modifié
         $skin->writeImage($outputPath);
 
-        // Libération des ressources
         $draw->clear();
         $draw->destroy();
         $mask->clear();

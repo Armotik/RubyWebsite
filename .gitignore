@@ -27,3 +27,7 @@
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
+
+/jwtRS256.key
+/jwtRS256.key.pub
+```
