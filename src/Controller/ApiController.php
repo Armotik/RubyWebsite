@@ -19,6 +19,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ApiController extends AbstractController
 {
+    /**
+     * Show all staffs (users)
+     * @param UserRepository $userRepository The repository of the User entity
+     * @param SerializerInterface $serializer The serializer
+     * @return Response The response
+     */
     #[Route('/api/staffs', name: 'app_api_staffs', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin, webmaster or bot can show all staffs')]
     public function index(UserRepository $userRepository, SerializerInterface $serializer): Response
@@ -29,6 +35,12 @@ class ApiController extends AbstractController
     }
 
 
+    /**
+     * Show a staff (user)
+     * @param User $staff The staff to show
+     * @param SerializerInterface $serializer The serializer
+     * @return Response The response
+     */
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_show', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can show a staff')]
     public function show(User $staff, SerializerInterface $serializer): Response
@@ -39,6 +51,17 @@ class ApiController extends AbstractController
         return new JsonResponse($jsonStaff, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
+    /**
+     * Create a staff (user)
+     * Auto encode the password
+     * @param Request $request The request
+     * @param SerializerInterface $serializer The serializer
+     * @param EntityManagerInterface $em The entity manager
+     * @param UrlGeneratorInterface $urlGenerator The url generator
+     * @param UserPasswordHasherInterface $passwordHasher The password hasher
+     * @param ValidatorInterface $validator The validator
+     * @return Response The response
+     */
     #[Route('/api/staffs', name: 'app_api_staffs_create', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can create a staff')]
     public function create(Request $request, SerializerInterface $serializer, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): Response
@@ -68,6 +91,17 @@ class ApiController extends AbstractController
         return new JsonResponse($jsonStaff, Response::HTTP_CREATED, ['Location' => $location], true);
     }
 
+    /**
+     * Update a staff (user)
+     * Not be able to update the password
+     * @param string $username The username of the staff to update
+     * @param Request $request The request
+     * @param SerializerInterface $serializer The serializer
+     * @param User $currentStaff The current staff
+     * @param EntityManagerInterface $em The entity manager
+     * @param UserRepository $userRepository The repository of the User entity
+     * @return Response The response
+     */
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_update', methods: ['PUT'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can update a staff')]
     public function update(string $username, Request $request, SerializerInterface $serializer, User $currentStaff, EntityManagerInterface $em, UserRepository $userRepository): Response
@@ -103,6 +137,12 @@ class ApiController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * Delete a staff (user)
+     * @param User $staff The staff to delete
+     * @param EntityManagerInterface $em The entity manager
+     * @return Response The response
+     */
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_delete', methods: ['DELETE'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can delete a staff')]
     public function delete(User $staff, EntityManagerInterface $em): Response

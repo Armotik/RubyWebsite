@@ -38,8 +38,13 @@ class UserCrudController extends AbstractCrudController
                     'MOD' => 'ROLE_MOD',
                     'MOD +' => 'ROLE_MOD_PLUS',
                     'SUPER MOD' => 'ROLE_SUPER_MOD',
-                    'ADMIN' => 'ROLE_ADMIN',
+                    'ADMIN' => 'ROLE_ADMI N',
                     'WEBMASTER' => 'ROLE_WEBMASTER',
+                    'ROLEPLAY' => 'ROLE_ROLEPLAY',
+                    'BUILDER' => 'ROLE_BUILDER',
+                    'BOT' => 'ROLE_BOT',
+                    'JOURNALIST' => 'ROLE_JOURNALIST',
+                    'GUIDE' => 'ROLE_GUIDE',
                 ])
                 ->allowMultipleChoices()
                 ->setRequired(true)
