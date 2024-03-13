@@ -24,6 +24,29 @@ class ApiImagesController extends AbstractController
     private array $rectangleCoordinates = [880, 445, 1825, 630];
 
     /**
+     * Get the image
+     * @param string $username The username
+     * @return Response The response
+     */
+    #[Route('/api/images/{username}', name: 'app_api_images_get', methods: ['GET'])]
+    public function getImage(string $username) :Response {
+
+        $url = 'img/tmp/rankup/' . $username . '_rankup.png';
+
+        if (!file_exists($url)) {
+            return new JsonResponse("Image not found", Response::HTTP_NOT_FOUND);
+        }
+
+        // Create a new response with the content of the image
+        $response = new Response(file_get_contents($url));
+
+        // Set the content type of the response to image/png
+        $response->headers->set('Content-Type', 'image/png');
+
+        return $response;
+    }
+
+    /**
      * Generate the image for the staff based on the role and the skin from the NationsGlory API
      * @param string $username The username of the staff
      * @param UserRepository $userRepository The user repository
