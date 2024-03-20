@@ -29,8 +29,9 @@ class ApiImagesController extends AbstractController
      * @return Response The response
      */
     #[Route('/api/images/{username}', name: 'app_api_images_get', methods: ['GET'])]
-    #[IsGranted('ROLE_SUPER_MOD', message: 'Access denied', statusCode: 403)]
-    public function getImage(string $username) :Response {
+    #[IsGranted('AUTH_IMAGE_GET', message: 'Access denied', statusCode: 403)]
+    public function getImage(string $username): Response
+    {
 
         $url = 'img/tmp/rankup/' . $username . '_rankup.png';
 
@@ -57,7 +58,12 @@ class ApiImagesController extends AbstractController
      */
     #[Route('/api/images/{username}', name: 'app_api_images', methods: ['POST'])]
     #[IsGranted('ROLE_SUPER_MOD', message: 'Access denied', statusCode: 403)]
-    public function index(string $username, UserRepository $userRepository, Request $request, SerializerInterface $serializer): JsonResponse
+    public function index(
+        string              $username,
+        UserRepository      $userRepository,
+        Request             $request,
+        SerializerInterface $serializer
+    ): JsonResponse
     {
 
         $staff = $userRepository->findOneBy(['username' => $username]);
@@ -282,9 +288,9 @@ class ApiImagesController extends AbstractController
      * @param Imagick $skin The skin
      * @param array $pointsStringArray The points to cut the skin (polygon)
      * @param string $outputPath The path to save the image
-     * @throws ImagickDrawException
-     * @throws ImagickException
      * @return void
+     * @throws ImagickException
+     * @throws ImagickDrawException
      */
     private function cutSkinToShape(Imagick $skin, array $pointsStringArray, string $outputPath): void
     {

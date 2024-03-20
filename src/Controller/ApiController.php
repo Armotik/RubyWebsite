@@ -27,7 +27,10 @@ class ApiController extends AbstractController
      */
     #[Route('/api/staffs', name: 'app_api_staffs', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin, webmaster or bot can show all staffs')]
-    public function index(UserRepository $userRepository, SerializerInterface $serializer): Response
+    public function index(
+        UserRepository      $userRepository,
+        SerializerInterface $serializer
+    ): Response
     {
         $staffList = $userRepository->findAll();
         $jsonStaffList = $serializer->serialize($staffList, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['password']]);
@@ -43,7 +46,10 @@ class ApiController extends AbstractController
      */
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_show', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can show a staff')]
-    public function show(User $staff, SerializerInterface $serializer): Response
+    public function show(
+        User                $staff,
+        SerializerInterface $serializer
+    ): Response
     {
         // serialize the staff but not the password
         $jsonStaff = $serializer->serialize($staff, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['password']]);
@@ -64,7 +70,14 @@ class ApiController extends AbstractController
      */
     #[Route('/api/staffs', name: 'app_api_staffs_create', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can create a staff')]
-    public function create(Request $request, SerializerInterface $serializer, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): Response
+    public function create(
+        Request                     $request,
+        SerializerInterface         $serializer,
+        EntityManagerInterface      $em,
+        UrlGeneratorInterface       $urlGenerator,
+        UserPasswordHasherInterface $passwordHasher,
+        ValidatorInterface          $validator
+    ): Response
     {
 
         $staff = $serializer->deserialize($request->getContent(), User::class, 'json');
@@ -94,30 +107,39 @@ class ApiController extends AbstractController
     /**
      * Update a staff (user)
      * Not be able to update the password
-     * @param string $username The username of the staff to update
      * @param Request $request The request
      * @param SerializerInterface $serializer The serializer
      * @param User $currentStaff The current staff
      * @param EntityManagerInterface $em The entity manager
-     * @param UserRepository $userRepository The repository of the User entity
      * @return Response The response
      */
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_update', methods: ['PUT'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can update a staff')]
-    public function update(string $username, Request $request, SerializerInterface $serializer, User $currentStaff, EntityManagerInterface $em, UserRepository $userRepository): Response
+    public function update(
+        Request                $request,
+        SerializerInterface    $serializer,
+        User                   $currentStaff,
+        EntityManagerInterface $em,
+    ): Response
     {
         $updatedStaff = $serializer->deserialize($request->getContent(),
             User::class,
             'json',
-        [AbstractNormalizer::OBJECT_TO_POPULATE => $currentStaff]
+            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentStaff]
         );
 
         $content = $request->getContent();
         $password = $serializer->decode($content, 'json')['password'] ?? null;
+        $token = $serializer->decode($content, 'json')['apiToken'] ?? null;
 
         // Not be able to update the password
-        if (empty($content) || $password !== null) {
+        if ($password !== null) {
             return new JsonResponse("You can't update password !", Response::HTTP_BAD_REQUEST);
+        }
+
+        // Not be able to update the apiToken
+        if ($token !== null) {
+            return new JsonResponse("You can't update apiToken !", Response::HTTP_BAD_REQUEST);
         }
 
         // update the username if it's different from the current one
@@ -145,9 +167,27 @@ class ApiController extends AbstractController
      */
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_delete', methods: ['DELETE'])]
     #[IsGranted('ROLE_ADMIN', message: 'Only an admin can delete a staff')]
-    public function delete(User $staff, EntityManagerInterface $em): Response
+    public function delete(
+        User                   $staff,
+        EntityManagerInterface $em
+    ): Response
     {
         $em->remove($staff);
+        $em->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/api/staffs/{username}/generate-api-token', name: 'app_api_staffs_generate_api_token', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN_MANAGER', message: 'Only an admin manager can generate an api token')]
+    public function generateApiToken(
+        User $user,
+        EntityManagerInterface $em
+    ): Response
+    {
+
+        // TODO
+        $em->persist($user);
         $em->flush();
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

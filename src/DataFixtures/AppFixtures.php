@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Category;
+use App\Entity\Token;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -42,7 +43,21 @@ class AppFixtures extends Fixture
         $user->setUsername("Armotik");
         $user->setPassword($this->passwordHasher->hashPassword($user, "admin"));
         $user->setRoles(['ROLE_MOD', 'ROLE_WEBMASTER']);
-        $user->setApiToken("ArmotikToken");
+
+        $token = new Token();
+        $token->setName('test token');
+        $token->setUser($user);
+        $token->setValue('test');
+        $token->setAuthorizations(['AUTH_CREATE', 'AUTH_DELETE']);
+
+        $token2 = new Token();
+        $token2->setName('test token 2');
+        $token2->setUser($user);
+        $token2->setValue('test2');
+        $token2->setAuthorizations(['AUTH_ALL']);
+
+        $user->addToken($token);
+        $user->addToken($token2);
 
         $manager->persist($category);
         $manager->persist($category2);
@@ -50,6 +65,9 @@ class AppFixtures extends Fixture
         $manager->persist($category4);
 
         $manager->persist($user);
+
+        $manager->persist($token);
+        $manager->persist($token2);
 
         $manager->flush();
     }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\CategoryRepository;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -11,10 +12,13 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     #[Route(path: '/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils, CategoryRepository $categoryRepository): Response
+    public function login(
+        AuthenticationUtils $authenticationUtils,
+        CategoryRepository  $categoryRepository
+    ): Response
     {
         if ($this->getUser()) {
-            return $this->redirectToRoute('app_staff', ['username'=>$this->getUser()->getUserIdentifier()]);
+            return $this->redirectToRoute('app_staff', ['username' => $this->getUser()->getUserIdentifier()]);
         }
 
         // get the login error if there is one
@@ -29,9 +33,12 @@ class SecurityController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws Exception
+     */
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
-        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        throw new Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
     }
 }

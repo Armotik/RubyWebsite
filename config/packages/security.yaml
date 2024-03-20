@@ -16,9 +16,8 @@ security:
         class: App\Entity\User
         property: username
     api_user_provider:
-      entity:
-        class: App\Entity\User
-        property: apiToken
+      id: App\Security\ApiTokenProvider
+
   firewalls:
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/

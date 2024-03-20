@@ -26,6 +26,42 @@
 
         </section>
 
+        <section id="display_tokens" class="p-4 text-center">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <h4 class="mb-4">Tokens</h4>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">Token</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Authorizations</th>
+                                <th scope="col">Value</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for token in tokens %}
+                                <tr>
+                                    <td>{{ token.value }}</td>
+                                    <td>{{ token.name }}</td>
+
+                                    <td>
+                                        <ul class="list-unstyled text-justify">
+                                            {% for authorization in token.authorizations %}
+                                                <li>{{ authorization }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td>{{ token.value }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         <section class="p-4 text-center">
             <div class="container">
                 <div class="row justify-content-center">
@@ -42,22 +78,11 @@
                     <div class="col-md-6">
                         <h4 class="mb-4">Change Password</h4>
                         {{ form_start(form, {'attr': {'class': 'text-center'}}) }}
-                        <div class="mb-3">
-                            {{ form_row(form.password, {
-                                label: 'New Password',
-                                'label_attr': {'class': 'form-label'},
-                                'attr': {'class': 'form-control'}
-                            }) }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form_row(form.confirmPassword, {
-                                label: 'Confirm Password',
-                                'label_attr': {'class': 'form-label'},
-                                'attr': {'class': 'form-control'}
-                            }) }}
-                        </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                        <!-- TODO : STYLE FORM -->
+                        {{ form_widget(form) }}
+
+                        <button type="submit" class="btn btn-primary w-100 mt-4">Register</button>
                         {{ form_end(form) }}
                     </div>
                 </div>
