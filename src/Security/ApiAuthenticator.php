@@ -26,6 +26,11 @@ class ApiAuthenticator extends AbstractAuthenticator
         return $request->headers->has('Authorization') && str_contains($request->headers->get('Authorization') , 'Bearer');
     }
 
+    /**
+     * Authenticate the request
+     * @param Request $request The request
+     * @return Passport The passport
+     */
     public function authenticate(Request $request): Passport
     {
 
@@ -35,11 +40,24 @@ class ApiAuthenticator extends AbstractAuthenticator
         );
     }
 
+    /**
+     * Handle the success authentication
+     * @param Request $request The request
+     * @param TokenInterface $token The token
+     * @param string $firewallName The firewall name
+     * @return Response|null The response
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         return null;
     }
 
+    /**
+     * Handle the failure authentication
+     * @param Request $request The request
+     * @param AuthenticationException $exception The exception
+     * @return Response|null The response
+     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
 

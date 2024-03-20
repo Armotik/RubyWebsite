@@ -85,7 +85,6 @@ class ApiImagesController extends AbstractController
         }
 
         $skinImage = $this->getNationsGlorySkin($username);
-        $color = $this->selectImage($role)['color'];
         $imagePath = 'img/tmp/skins/' . $username . '.png';
         $outputPath = 'img/tmp/rankup/';
 
@@ -124,7 +123,7 @@ class ApiImagesController extends AbstractController
 
             // Return OK
             return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return new JsonResponse("An error occurred: " . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -242,7 +241,7 @@ class ApiImagesController extends AbstractController
         $rectangleHeight = $y2 - $y1;
 
         $draw = new ImagickDraw();
-        $draw->setFillColor('white');
+        $draw->setFillColor(new ImagickPixel('white'));
         $draw->setFont('font/OpenSans/static/OpenSans-ExtraBold.ttf');
 
         $fontSize = 10;
@@ -294,7 +293,7 @@ class ApiImagesController extends AbstractController
         $mask->setImageFormat('png');
 
         $draw = new ImagickDraw();
-        $draw->setFillColor('black');
+        $draw->setFillColor(new ImagickPixel('black'));
 
         $polygonPoints = $this->convertPointsToPolygon($pointsStringArray); // Convert the points to a polygon
 
