@@ -29,6 +29,7 @@ class ApiImagesController extends AbstractController
      * @return Response The response
      */
     #[Route('/api/images/{username}', name: 'app_api_images_get', methods: ['GET'])]
+    #[IsGranted('ROLE_SUPER_MOD', message: 'Access denied', statusCode: 403)]
     public function getImage(string $username) :Response {
 
         $url = 'img/tmp/rankup/' . $username . '_rankup.png';

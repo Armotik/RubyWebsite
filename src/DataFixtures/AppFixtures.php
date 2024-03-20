@@ -42,6 +42,7 @@ class AppFixtures extends Fixture
         $user->setUsername("Armotik");
         $user->setPassword($this->passwordHasher->hashPassword($user, "admin"));
         $user->setRoles(['ROLE_MOD', 'ROLE_WEBMASTER']);
+        $user->setApiToken("ArmotikToken");
 
         $manager->persist($category);
         $manager->persist($category2);

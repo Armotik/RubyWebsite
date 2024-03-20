@@ -6,6 +6,3 @@ controllers:
 kernel:
   resource: ../src/Kernel.php
   type: annotation
-
-api_login_check:
-  path: /api/login_check
