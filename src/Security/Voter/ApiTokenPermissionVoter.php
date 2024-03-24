@@ -2,17 +2,14 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\Token;
-use App\Entity\User;
 use App\Repository\TokenRepository;
-use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class ApiTokenPermissionVoter extends Voter
 {
 
-    const AUTH_ALL = 'AUTH_ALL';
+    const AUTH_ALL = "AUTH_ALL";
     const AUTH_CREATE = 'AUTH_CREATE';
     const AUTH_READ = 'AUTH_READ';
     const AUTH_UPDATE = 'AUTH_UPDATE';
@@ -20,10 +17,16 @@ class ApiTokenPermissionVoter extends Voter
     const AUTH_IMAGE_GET = 'AUTH_IMAGE_GET';
     const AUTH_IMAGE_POST = 'AUTH_IMAGE_POST';
 
-    public function __construct(private TokenRepository $tokenRepository)
+    public function __construct(private readonly TokenRepository $tokenRepository)
     {
     }
 
+    /**
+     * Check if the voter supports the attribute
+     * @param string $attribute The attribute
+     * @param mixed $subject The subject
+     * @return bool The result of the check
+     */
     protected function supports(string $attribute, mixed $subject): bool
     {
 
@@ -38,11 +41,15 @@ class ApiTokenPermissionVoter extends Voter
         ]);
     }
 
+    /**
+     * Vote on the attribute
+     * @param string $attribute The attribute
+     * @param mixed $subject The subject
+     * @param TokenInterface $token The user token
+     * @return bool The result of the vote
+     */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
-
-        // TODO: Token roles not User rolesù
-        //dd($token->getRoleNames());
 
         $user = $token->getUser();
 
@@ -50,16 +57,24 @@ class ApiTokenPermissionVoter extends Voter
             return false;
         }
 
+        if (in_array("ROLE_WEBMASTER", $user->getRoles())) {
+            return true;
+        }
+
         $tokens = $this->tokenRepository->findByUser($user);
 
         foreach ($tokens as $client_token) {
 
-            if ($client_token->getAuthorizations() === [self::AUTH_ALL]) {
-                return true;
-            }
+            foreach ($client_token->getAuthorizations() as $auth) {
 
-            if ($client_token->getAuthorizations() === [$attribute]) {
-                return true;
+                if ($auth === self::AUTH_ALL) {
+                    return true;
+                }
+
+                if ($auth === $attribute) {
+
+                    return true;
+                }
             }
         }
 

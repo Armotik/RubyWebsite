@@ -52,6 +52,7 @@ security:
 
   access_control:
     - { path: ^/api/login, roles: PUBLIC_ACCESS }
+    - { path: ^/api/doc, roles: PUBLIC_ACCESS }
     - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
   role_hierarchy:
@@ -63,7 +64,7 @@ security:
     ROLE_ADMIN: ROLE_SUPER_MOD
     ROLE_ADMIN_MANAGER: ROLE_ADMIN
     ROLE_BOT: ROLE_ADMIN
-    ROLE_WEBMASTER: ROLE_ADMIN_MANAGER
+    ROLE_WEBMASTER: ROLE_ADMIN_MANAGER, AUTH_ALL  # AUTH_ALL is a custom role
 
 when@test:
   security:

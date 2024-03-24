@@ -1,0 +1,26 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: RubyWebite API
+            description: API documentation for RubyWebsite
+            version: 1.0.0
+
+        components:
+            schemas:
+                Token:
+                    type: object
+                    properties:
+                        token:
+                            type: string
+                            readOnly: true
+            securitySchemes:
+                bearerAuth:
+                    type: apiKey
+                    in: header
+                    name: Authorization
+        security:
+            - bearerAuth: []
+
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

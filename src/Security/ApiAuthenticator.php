@@ -22,9 +22,8 @@ class ApiAuthenticator extends AbstractAuthenticator
      */
     public function supports(Request $request): ?bool
     {
-
         return $request->headers->has('Authorization') &&
-            str_contains($request->headers->get('Authorization') , 'Bearer');
+            str_contains($request->headers->get('Authorization'), 'Bearer');
     }
 
     /**
@@ -36,6 +35,7 @@ class ApiAuthenticator extends AbstractAuthenticator
     {
 
         $token = str_replace('Bearer ', '', $request->headers->get('Authorization'));
+
         return new SelfValidatingPassport(
             new UserBadge($token)
         );
@@ -61,9 +61,11 @@ class ApiAuthenticator extends AbstractAuthenticator
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
+        $data = [
+            'status' => $exception->getCode(),
+            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
+        ];
 
-        return new JsonResponse([
-            'message' => 'Authentication failed'
-        ], Response::HTTP_UNAUTHORIZED);
+        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 }

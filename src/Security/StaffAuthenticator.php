@@ -22,10 +22,15 @@ class StaffAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'app_login';
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
     {
     }
 
+    /**
+     * Check if the request is supported
+     * @param Request $request The request
+     * @return Passport The passport
+     */
     public function authenticate(Request $request): Passport
     {
         $username = $request->request->get('username', '');
@@ -42,6 +47,13 @@ class StaffAuthenticator extends AbstractLoginFormAuthenticator
         );
     }
 
+    /**
+     * Handle the success authentication
+     * @param Request $request The request
+     * @param TokenInterface $token The token
+     * @param string $firewallName The firewall name
+     * @return Response|null The response
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
@@ -51,6 +63,11 @@ class StaffAuthenticator extends AbstractLoginFormAuthenticator
         return new RedirectResponse($this->urlGenerator->generate('app_staff', ['username'=>$request->request->get('username', '')]));
     }
 
+    /**
+     * Get the login url
+     * @param Request $request The request
+     * @return string The login url
+     */
     protected function getLoginUrl(Request $request): string
     {
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);

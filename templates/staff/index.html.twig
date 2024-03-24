@@ -34,7 +34,6 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th scope="col">Token</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Authorizations</th>
                                 <th scope="col">Value</th>
@@ -43,7 +42,7 @@
                             <tbody>
                             {% for token in tokens %}
                                 <tr>
-                                    <td>{{ token.value }}</td>
+
                                     <td>{{ token.name }}</td>
 
                                     <td>
@@ -53,7 +52,7 @@
                                             {% endfor %}
                                         </ul>
                                     </td>
-                                    <td>{{ token.value }}</td>
+                                    <td class="text-break">{{ token.value }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -61,6 +60,7 @@
                     </div>
                 </div>
             </div>
+        </section>
 
         <section class="p-4 text-center">
             <div class="container">

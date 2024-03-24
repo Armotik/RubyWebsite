@@ -26,15 +26,27 @@ class ApiController extends AbstractController
      * @return Response The response
      */
     #[Route('/api/staffs', name: 'app_api_staffs', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN', message: 'Only an admin, webmaster or bot can show all staffs')]
+    #[IsGranted('AUTH_READ', message: 'Only an admin, webmaster or bot can show all staffs')]
     public function index(
         UserRepository      $userRepository,
         SerializerInterface $serializer
     ): Response
     {
-        $staffList = $userRepository->findAll();
-        $jsonStaffList = $serializer->serialize($staffList, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['password']]);
-        return new JsonResponse($jsonStaffList, Response::HTTP_OK, [], true);
+
+        $users = $userRepository->findAll();
+
+        $circularReferenceHandler = function ($object) {
+            return $object->getId();
+        };
+
+        $context = [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => $circularReferenceHandler,
+            AbstractNormalizer::IGNORED_ATTRIBUTES => ['password', 'value'],
+        ];
+
+        $jsonUsers = $serializer->serialize($users, 'json', $context);
+
+        return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
     }
 
 
@@ -45,14 +57,23 @@ class ApiController extends AbstractController
      * @return Response The response
      */
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_show', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN', message: 'Only an admin can show a staff')]
+    #[IsGranted('AUTH_READ', message: 'Only an admin can show a staff')]
     public function show(
         User                $staff,
         SerializerInterface $serializer
     ): Response
     {
-        // serialize the staff but not the password
-        $jsonStaff = $serializer->serialize($staff, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['password']]);
+
+        $circularReferenceHandler = function ($object) {
+            return $object->getId();
+        };
+
+        $context = [
+            AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => $circularReferenceHandler,
+            AbstractNormalizer::IGNORED_ATTRIBUTES => ['password'],
+        ];
+
+        $jsonStaff = $serializer->serialize($staff, 'json', $context);
 
         return new JsonResponse($jsonStaff, Response::HTTP_OK, ['accept' => 'json'], true);
     }
@@ -69,7 +90,7 @@ class ApiController extends AbstractController
      * @return Response The response
      */
     #[Route('/api/staffs', name: 'app_api_staffs_create', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN', message: 'Only an admin can create a staff')]
+    #[IsGranted('AUTH_CREATE', message: 'Only an admin can create a staff')]
     public function create(
         Request                     $request,
         SerializerInterface         $serializer,
@@ -114,7 +135,7 @@ class ApiController extends AbstractController
      * @return Response The response
      */
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_update', methods: ['PUT'])]
-    #[IsGranted('ROLE_ADMIN', message: 'Only an admin can update a staff')]
+    #[IsGranted('AUTH_UPDATE', message: 'Only an admin can update a staff')]
     public function update(
         Request                $request,
         SerializerInterface    $serializer,
@@ -166,28 +187,13 @@ class ApiController extends AbstractController
      * @return Response The response
      */
     #[Route('/api/staffs/{username}', name: 'app_api_staffs_delete', methods: ['DELETE'])]
-    #[IsGranted('ROLE_ADMIN', message: 'Only an admin can delete a staff')]
+    #[IsGranted('AUTH_DELETE', message: 'Only an admin can delete a staff')]
     public function delete(
         User                   $staff,
         EntityManagerInterface $em
     ): Response
     {
         $em->remove($staff);
-        $em->flush();
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    #[Route('/api/staffs/{username}/generate-api-token', name: 'app_api_staffs_generate_api_token', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN_MANAGER', message: 'Only an admin manager can generate an api token')]
-    public function generateApiToken(
-        User $user,
-        EntityManagerInterface $em
-    ): Response
-    {
-
-        // TODO
-        $em->persist($user);
         $em->flush();
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

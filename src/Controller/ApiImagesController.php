@@ -9,7 +9,6 @@ use ImagickDraw;
 use ImagickDrawException;
 use ImagickException;
 use ImagickPixel;
-use ImagickPixelException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,27 +50,18 @@ class ApiImagesController extends AbstractController
     /**
      * Generate the image for the staff based on the role and the skin from the NationsGlory API
      * @param string $username The username of the staff
-     * @param UserRepository $userRepository The user repository
      * @param Request $request The request
      * @param SerializerInterface $serializer The serializer
      * @return JsonResponse The response
      */
     #[Route('/api/images/{username}', name: 'app_api_images', methods: ['POST'])]
-    #[IsGranted('ROLE_SUPER_MOD', message: 'Access denied', statusCode: 403)]
+    #[IsGranted('AUTH_IMAGE_POST', message: 'Access denied', statusCode: 403)]
     public function index(
         string              $username,
-        UserRepository      $userRepository,
         Request             $request,
         SerializerInterface $serializer
     ): JsonResponse
     {
-
-        $staff = $userRepository->findOneBy(['username' => $username]);
-
-        // Check if the staff exists
-        if (!$staff) {
-            return new JsonResponse("Staff not found", Response::HTTP_NOT_FOUND);
-        }
 
         $content = $request->getContent();
         $role = $serializer->decode($content, 'json')['role'] ?? null;
@@ -266,7 +256,7 @@ class ApiImagesController extends AbstractController
         $draw->setFontSize($fontSize);
 
         // Center the text within the rectangle
-        $textX = $x1 + ($rectangleWidth - $metrics['textWidth']) / 2;
+        $textX = ($x1 + ($rectangleWidth - $metrics['textWidth']) / 2) + 5;
         $textY = $y1 + ($rectangleHeight - $metrics['textHeight']) / 2 + $metrics['ascender'];
 
         $draw->annotation($textX, $textY, $username); // Draw the username within the rectangle

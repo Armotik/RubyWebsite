@@ -6,6 +6,9 @@
 parameters:
 
 services:
+    App\EventSubscriber\ExceptionSubscriber:
+        tags:
+            - { name: 'kernel.event_listener', event: 'kernel.exception' }
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
